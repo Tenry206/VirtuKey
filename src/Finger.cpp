@@ -20,6 +20,8 @@ Finger::Finger(uint8_t channel, int pin, float strikeThresh, float releaseThresh
     justClicked = false;
 
     currentBend = 0;
+
+    isStretched = false;
 }
 
 // --- INITIALIZATION ---
@@ -31,7 +33,7 @@ void Finger::init() {
 
 // --- MAIN LOOP UPDATE ---
 // Switches the mux, reads the shared MPU, and does all the math
-void Finger::update(Adafruit_MPU6050 &shared_mpu) {
+void Finger::update(Adafruit_MPU6050 &shared_mpu, float handGyroZ) {
     // 1. Switch the Multiplexer to this finger's channel
     Wire.beginTransmission(0x70); 
     Wire.write(1 << muxChannel); 
@@ -67,6 +69,7 @@ void Finger::update(Adafruit_MPU6050 &shared_mpu) {
     // 5. Clicking/Jerk Math
     float current_az = a.acceleration.z;
     float delta_az = current_az - previous_az;
+    float abs_delta_az = abs(delta_az);
     previous_az = current_az;
 
     const int DEBOUNCE_TIME = 100; // From your prototype
@@ -81,6 +84,24 @@ void Finger::update(Adafruit_MPU6050 &shared_mpu) {
     else if(delta_az > releaseThreshold && isFingerDown && (millis() - lastStrikeTime > DEBOUNCE_TIME)){
         isFingerDown = false;
         lastStrikeTime = millis();
+    }
+
+    // --- SPREAD MATH WITH GATE ---
+    float indexGyroZ = g.gyro.z * 180.0 / PI;
+    float relativeVelocityZ = indexGyroZ - handGyroZ;
+
+    const float STRIKE_NOISE_THRESHOLD = 6.5; 
+    const float STRETCH_LEFT_SPEED = 170.0;   
+    const float RETURN_CENTER_SPEED = -200.0; 
+
+    // Only update the spread state if we are NOT clicking
+    if (abs_delta_az < STRIKE_NOISE_THRESHOLD) {
+        if (relativeVelocityZ > STRETCH_LEFT_SPEED) {
+            isStretched = true;  
+        } 
+        else if (relativeVelocityZ < RETURN_CENTER_SPEED) {
+            isStretched = false; 
+        }
     }
 }
 
@@ -104,4 +125,13 @@ bool Finger::hasJustClicked() {
 
 int Finger::getBend(){
     return currentBend;
+}
+
+bool Finger::getStretchedState() {
+    return isStretched;
+}
+
+// NEW GETTER
+float Finger::getRoll() {
+    return filteredRoll;
 }
