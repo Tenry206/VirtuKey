@@ -15,7 +15,8 @@ The wiring logic behind the I2C multiplexing and analog sensor routing:
 *Note: Because the MPU6050s share static I2C addresses, a TCA9548A multiplexer is used to isolate them on the bus, while the OLED screen sits on a dedicated multiplexer channel.*
 
 ## 🔌 PCB Layout
-Currently, I'm learning PCB design to integrate the ESP32 and TCA9548A multiplexer into a single board!
+The PCB Design:
+![PCB design]<img width="1192" height="715" alt="PCB Design" src="https://github.com/user-attachments/assets/353abc23-67ee-4cb6-ba6d-deb206b1ceb8" />
 
 ## 📦 Case & Assembly
 I'm 3D printing a custom enclosure to tame the wire spaghetti
