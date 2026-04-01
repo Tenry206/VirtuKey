@@ -16,7 +16,7 @@ The wiring logic behind the I2C multiplexing and analog sensor routing:
 
 ## 🔌 PCB Layout
 The PCB Design:
-![PCB design]<img width="1192" height="715" alt="PCB Design" src="https://github.com/user-attachments/assets/353abc23-67ee-4cb6-ba6d-deb206b1ceb8" />
+<img width="1192" height="715" alt="PCB Design" src="https://github.com/user-attachments/assets/353abc23-67ee-4cb6-ba6d-deb206b1ceb8" />
 
 ## 📦 Case & Assembly
 I'm 3D printing a custom enclosure to tame the wire spaghetti
