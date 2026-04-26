@@ -43,8 +43,8 @@ void setup() {
     pinMode(MODE_BTN_PIN, INPUT_PULLUP);
 
     // Initialize the shared MPU6050 here...
-    uint8_t activeChannels[] = {7, 6, 5, 4, 3, 2};
-    for(int i = 0; i < 6; i++) {
+    uint8_t activeChannels[] = {7, 6, 5, 3, 2};
+    for(int i = 0; i < 5; i++) {
         // 1. Switch multiplexer
         Wire.beginTransmission(0x70);
         Wire.write(1 << activeChannels[i]);
@@ -52,11 +52,10 @@ void setup() {
         
         // 2. Initialize the sensor on this specific channel
         if (!mpu.begin()) {
-            Serial.print("Failed to find MPU6050 on Mux channel ");
+            Serial.print("WARNING: No MPU6050 on Mux channel ");
             Serial.println(activeChannels[i]);
-            while (1) { delay(10); } // Halt if a wire is loose
+            continue; // Skip this channel instead of halting
         }
-        
         // 3. Configure the sensor's sensitivity
         mpu.setAccelerometerRange(MPU6050_RANGE_4_G);
         mpu.setGyroRange(MPU6050_RANGE_500_DEG);
@@ -273,5 +272,30 @@ void loop() {
             }
         }
     } 
-    delay(10);
+    // ── SERIAL TELEMETRY FOR MATLAB ──────────────────────────────
+    // Format: T:pitch,roll,bend|I:pitch,roll,bend,spread|M:pitch,roll,bend|R:pitch,roll,bend|P:pitch,roll,bend|MODE:0
+    Serial.print("T:"); Serial.print(thumb.getPitch(),1);       Serial.print(",");
+                        Serial.print(thumb.getRoll(),1);         Serial.print(",");
+                        Serial.print(thumb.getBend());           Serial.print("|");
+
+    Serial.print("I:"); Serial.print(indexFinger.getPitch(),1); Serial.print(",");
+                        Serial.print(indexFinger.getRoll(),1);   Serial.print(",");
+                        Serial.print(indexFinger.getBend());     Serial.print(",");
+                        Serial.print(indexFinger.getStretchedState() ? 1 : 0); Serial.print("|");
+
+    Serial.print("M:"); Serial.print(middleFinger.getPitch(),1);Serial.print(",");
+                        Serial.print(middleFinger.getRoll(),1);  Serial.print(",");
+                        Serial.print(middleFinger.getBend());    Serial.print("|");
+
+    Serial.print("R:"); Serial.print(ringFinger.getPitch(),1);  Serial.print(",");
+                        Serial.print(ringFinger.getRoll(),1);    Serial.print(",");
+                        Serial.print(ringFinger.getBend());      Serial.print("|");
+
+    Serial.print("P:"); Serial.print(pinky.getPitch(),1);       Serial.print(",");
+                        Serial.print(pinky.getRoll(),1);         Serial.print(",");
+                        Serial.print(pinky.getBend());           Serial.print("|");
+
+    Serial.print("MODE:"); Serial.println(isMouseMode ? 1 : 0);
+
+    delay(20); // 50 Hz
 }
