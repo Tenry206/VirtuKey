@@ -272,7 +272,7 @@ void loop() {
             }
         }
     } 
-    // ── SERIAL TELEMETRY FOR MATLAB ──────────────────────────────
+    // ── SERIAL TELEMEToRY FOR MATLAB ──────────────────────────────
     // Format: T:pitch,roll,bend|I:pitch,roll,bend,spread|M:pitch,roll,bend|R:pitch,roll,bend|P:pitch,roll,bend|MODE:0
     Serial.print("T:"); Serial.print(thumb.getPitch(),1);       Serial.print(",");
                         Serial.print(thumb.getRoll(),1);         Serial.print(",");
